@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import ResultDialog from './ResultDialog'
 
 const matrix = [
 	['', '', ''],
@@ -8,6 +9,25 @@ const matrix = [
 
 const Board = ({ setComp }) => {
 	const [turn, setTurn] = useState('player1')
+	const [cond, setCond] = useState('')
+	const [restart, setRestart] = useState(false)
+
+	useEffect(() => {
+		if (restart) {
+			for (let i = 0; i < 3; i++) {
+				for (let j = 0; j < 3; j++) {
+					matrix[i][j] = ''
+				}
+			}
+
+			for (let i = 1; i < 10; i++) {
+				document.getElementById(`part${i}`).innerText = ''
+			}
+
+			setCond('')
+			setRestart(false)
+		}
+	}, [restart])
 
 	const select = e => {
 		const ele = document.getElementById(e.target.id)
@@ -18,17 +38,7 @@ const Board = ({ setComp }) => {
 			fillMatrix(e.target.id)
 
 			if (checkWinner()) {
-				alert(`${turn} is winner`)
-
-				for (let i = 0; i < 3; i++) {
-					for (let j = 0; j < 3; j++) {
-						matrix[i][j] = ''
-					}
-				}
-
-				for (let i = 1; i < 10; i++) {
-					document.getElementById(`part${i}`).innerText = ''
-				}
+				setCond('win')
 			} else {
 				setTurn(turn === 'player1' ? 'player2' : 'player1')
 			}
@@ -74,6 +84,9 @@ const Board = ({ setComp }) => {
 	}
 	return (
 		<div>
+			{cond === 'win' || cond === 'lose' || cond === 'draw' ? (
+				<ResultDialog turn={turn} cond={cond} setComp={setComp} setRestart={setRestart} />
+			) : null}
 			<div className='boarddiv1'>
 				<h2>{turn.toUpperCase()}'S TURN</h2>
 				<button onClick={() => setComp('')}>Exit</button>
