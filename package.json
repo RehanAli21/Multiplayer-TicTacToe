@@ -1,0 +1,30 @@
+{
+  "name": "multiplayer-tictactoe",
+  "version": "1.0.0",
+  "description": "Tic Tac Toe game with local and multiplayer mode",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RehanAli21/Multiplayer-TicTacToe.git"
+  },
+  "keywords": [
+    "Tic",
+    "Tac",
+    "Toe",
+    "game",
+    "multiplayer"
+  ],
+  "author": "Rehan Ali Shah",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RehanAli21/Multiplayer-TicTacToe/issues"
+  },
+  "homepage": "https://github.com/RehanAli21/Multiplayer-TicTacToe#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.5.3"
+  }
+}
