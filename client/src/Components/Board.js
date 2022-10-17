@@ -39,6 +39,8 @@ const Board = ({ setComp }) => {
 
 			if (checkWinner()) {
 				setCond('win')
+			} else if (draw()) {
+				setCond('draw')
 			} else {
 				setTurn(turn === 'player1' ? 'player2' : 'player1')
 			}
@@ -82,6 +84,21 @@ const Board = ({ setComp }) => {
 			return false
 		}
 	}
+
+	const draw = () => {
+		let draw = true
+
+		for (let i = 0; i < matrix.length; i++) {
+			for (let j = 0; j < matrix[i].length; j++) {
+				if (matrix[i][j] === '') {
+					draw = false
+				}
+			}
+		}
+
+		return draw
+	}
+
 	return (
 		<div>
 			{cond === 'win' || cond === 'lose' || cond === 'draw' ? (
