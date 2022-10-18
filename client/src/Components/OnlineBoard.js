@@ -24,6 +24,10 @@ const OnlineBoard = ({ setComp, roomRef }) => {
 
 		socket.on('otherPlayerOffline', () => setConnected(false))
 
+		socket.on('win', () => setCond('win'))
+
+		socket.on('draw', () => setCond('draw'))
+
 		socket.on('move', ({ id }) => {
 			const ele = document.getElementById(id)
 
@@ -33,9 +37,9 @@ const OnlineBoard = ({ setComp, roomRef }) => {
 				fillMatrix(id)
 
 				if (checkWinner()) {
-					setCond('win')
+					socket.emit('win')
 				} else if (draw()) {
-					setCond('draw')
+					socket.emit('draw')
 				} else {
 					turn = turn === 'player1' ? 'player2' : 'player1'
 
