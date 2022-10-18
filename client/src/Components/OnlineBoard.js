@@ -12,8 +12,9 @@ const matrix = [
 let socket = io('http://localhost:5000')
 const room = uuidv4()
 
+let turn = 'player1'
+
 const OnlineBoard = ({ setComp, roomRef }) => {
-	const [turn, setTurn] = useState(roomRef.current === '' ? 'player1' : 'player2')
 	const [cond, setCond] = useState('')
 	const [restart, setRestart] = useState(false)
 	const [connected, setConnected] = useState(false)
@@ -22,6 +23,27 @@ const OnlineBoard = ({ setComp, roomRef }) => {
 		socket.on('otherPlayerOnline', () => setConnected(true))
 
 		socket.on('otherPlayerOffline', () => setConnected(false))
+
+		socket.on('move', ({ id }) => {
+			const ele = document.getElementById(id)
+
+			if (ele && ele.innerText === '') {
+				ele.innerText = turn === 'player1' ? 'X' : 'O'
+
+				fillMatrix(id)
+
+				if (checkWinner()) {
+					setCond('win')
+				} else if (draw()) {
+					setCond('draw')
+				} else {
+					turn = turn === 'player1' ? 'player2' : 'player1'
+
+					const ele1 = document.getElementById('playernametext')
+					if (ele1) ele1.innerText = turn === 'player1' ? "Player 1's Turn" : "Player 2's Turn"
+				}
+			}
+		})
 
 		if (roomRef.current === '') {
 			socket.emit('start', { room: room })
@@ -58,26 +80,16 @@ const OnlineBoard = ({ setComp, roomRef }) => {
 
 		setCond('')
 		setRestart(false)
-		setTurn('player1')
+
+		const ele1 = document.getElementById('playernametext')
+		if (ele1) ele1.innerText = "Player 1's Turn"
 	}
 
 	const select = e => {
-		socket.emit('move', { id: e.target.id })
-
-		const ele = document.getElementById(e.target.id)
-
-		if (ele && ele.innerText === '') {
-			ele.innerText = turn === 'player1' ? 'X' : 'O'
-
-			fillMatrix(e.target.id)
-
-			if (checkWinner()) {
-				setCond('win')
-			} else if (draw()) {
-				setCond('draw')
-			} else {
-				setTurn(turn === 'player1' ? 'player2' : 'player1')
-			}
+		if (roomRef.current === '' && turn === 'player1') {
+			socket.emit('move', { id: e.target.id })
+		} else if (roomRef.current !== '' && turn === 'player2') {
+			socket.emit('move', { id: e.target.id })
 		}
 	}
 
@@ -145,7 +157,7 @@ const OnlineBoard = ({ setComp, roomRef }) => {
 				<ResultDialog turn={turn} cond={cond} setComp={setComp} setRestart={setRestart} />
 			) : null}
 			<div className='boarddiv1'>
-				<h2>{turn.toUpperCase()}'S TURN</h2>
+				<h2 id='playernametext'>Player 1's Turn</h2>
 				<button onClick={() => setComp('')}>Exit</button>
 			</div>
 			{connected ? (

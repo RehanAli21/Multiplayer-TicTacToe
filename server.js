@@ -49,6 +49,10 @@ io.on('connection', socket => {
 
 	socket.on('move', ({ id }) => {
 		let r = findRoom(socket)
+
+		rooms[r].forEach(player => {
+			io.to(player).emit('move', { id })
+		})
 	})
 
 	socket.on('disconnect', () => {
