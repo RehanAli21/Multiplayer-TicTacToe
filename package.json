@@ -4,6 +4,7 @@
   "description": "Tic Tac Toe game with local and multiplayer mode",
   "main": "server.js",
   "scripts": {
+    "start": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,7 +25,11 @@
   },
   "homepage": "https://github.com/RehanAli21/Multiplayer-TicTacToe#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "socket.io": "^4.5.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
   }
 }

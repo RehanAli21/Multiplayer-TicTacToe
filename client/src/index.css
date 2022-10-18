@@ -124,3 +124,14 @@ button:active {
   font-weight: bold;
   cursor: pointer;
 }
+
+.result div input {
+  padding: 10px;
+  color: white;
+  border: 1px solid white;
+  margin-right: 20px;
+}
+
+.result div button {
+  margin-top: 30px;
+}

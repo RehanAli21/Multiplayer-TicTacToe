@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { io } from 'socket.io-client'
+import { v4 as uuidv4 } from 'uuid'
 import ResultDialog from './ResultDialog'
 
 const matrix = [
@@ -7,10 +9,23 @@ const matrix = [
 	['', '', ''],
 ]
 
-const Board = ({ setComp }) => {
+let socket = io('http://localhost:5000')
+const room = uuidv4()
+
+const OnlineBoard = ({ setComp, roomRef }) => {
 	const [turn, setTurn] = useState('player1')
 	const [cond, setCond] = useState('')
 	const [restart, setRestart] = useState(false)
+
+	useEffect(() => {
+		if (roomRef.current === '') {
+			socket.emit('start', { room: room })
+		} else {
+			socket.emit('join', { room: roomRef.current })
+		}
+
+		return () => (roomRef.current.value = '')
+	}, [])
 
 	useEffect(() => {
 		if (restart) {
@@ -124,8 +139,11 @@ const Board = ({ setComp }) => {
 				<div onClick={select} className='part' id='part8'></div>
 				<div onClick={select} className='part' id='part9'></div>
 			</div>
+			{roomRef.current === '' ? (
+				<p style={{ position: 'absolute', top: '20px', left: '20px', color: 'white' }}>{room}</p>
+			) : null}
 		</div>
 	)
 }
 
-export default Board
+export default OnlineBoard
