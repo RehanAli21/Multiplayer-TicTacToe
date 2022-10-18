@@ -13,18 +13,26 @@ let socket = io('http://localhost:5000')
 const room = uuidv4()
 
 const OnlineBoard = ({ setComp, roomRef }) => {
-	const [turn, setTurn] = useState('player1')
+	const [turn, setTurn] = useState(roomRef.current === '' ? 'player1' : 'player2')
 	const [cond, setCond] = useState('')
 	const [restart, setRestart] = useState(false)
+	const [connected, setConnected] = useState(false)
 
 	useEffect(() => {
+		socket.on('otherPlayerOnline', () => setConnected(true))
+
+		socket.on('otherPlayerOffline', () => setConnected(false))
+
 		if (roomRef.current === '') {
 			socket.emit('start', { room: room })
 		} else {
 			socket.emit('join', { room: roomRef.current })
 		}
 
-		return () => (roomRef.current.value = '')
+		return () => {
+			roomRef.current = ''
+			socket.disconnect()
+		}
 	}, [])
 
 	useEffect(() => {
@@ -43,7 +51,9 @@ const OnlineBoard = ({ setComp, roomRef }) => {
 		}
 
 		for (let i = 1; i < 10; i++) {
-			document.getElementById(`part${i}`).innerText = ''
+			const ele = document.getElementById(`part${i}`)
+
+			if (ele) ele.innerText = ''
 		}
 
 		setCond('')
@@ -52,6 +62,8 @@ const OnlineBoard = ({ setComp, roomRef }) => {
 	}
 
 	const select = e => {
+		socket.emit('move', { id: e.target.id })
+
 		const ele = document.getElementById(e.target.id)
 
 		if (ele && ele.innerText === '') {
@@ -119,8 +131,16 @@ const OnlineBoard = ({ setComp, roomRef }) => {
 		return draw
 	}
 
+	const toggleKey = () => {
+		const ele = document.getElementById('keytext')
+
+		if (ele) {
+			ele.style.display = ele.style.display === 'inline-block' ? 'none' : 'inline-block'
+		}
+	}
+
 	return (
-		<div>
+		<div style={{ textAlign: 'center' }}>
 			{cond === 'win' || cond === 'lose' || cond === 'draw' ? (
 				<ResultDialog turn={turn} cond={cond} setComp={setComp} setRestart={setRestart} />
 			) : null}
@@ -128,20 +148,30 @@ const OnlineBoard = ({ setComp, roomRef }) => {
 				<h2>{turn.toUpperCase()}'S TURN</h2>
 				<button onClick={() => setComp('')}>Exit</button>
 			</div>
-			<div className='Board'>
-				<div onClick={select} className='part' id='part1'></div>
-				<div onClick={select} className='part' id='part2'></div>
-				<div onClick={select} className='part' id='part3'></div>
-				<div onClick={select} className='part' id='part4'></div>
-				<div onClick={select} className='part' id='part5'></div>
-				<div onClick={select} className='part' id='part6'></div>
-				<div onClick={select} className='part' id='part7'></div>
-				<div onClick={select} className='part' id='part8'></div>
-				<div onClick={select} className='part' id='part9'></div>
+			{connected ? (
+				<div className='Board'>
+					<div onClick={select} className='part' id='part1'></div>
+					<div onClick={select} className='part' id='part2'></div>
+					<div onClick={select} className='part' id='part3'></div>
+					<div onClick={select} className='part' id='part4'></div>
+					<div onClick={select} className='part' id='part5'></div>
+					<div onClick={select} className='part' id='part6'></div>
+					<div onClick={select} className='part' id='part7'></div>
+					<div onClick={select} className='part' id='part8'></div>
+					<div onClick={select} className='part' id='part9'></div>
+				</div>
+			) : (
+				<h1>Not Connected to the user</h1>
+			)}
+
+			<div style={{ position: 'absolute', top: '20px', left: '40px', color: 'white' }}>
+				<button className='keybutton' onClick={toggleKey}>
+					KEY
+				</button>
+				<p style={{ display: 'none' }} id='keytext'>
+					{roomRef.current === '' ? room : roomRef.current}
+				</p>
 			</div>
-			{roomRef.current === '' ? (
-				<p style={{ position: 'absolute', top: '20px', left: '20px', color: 'white' }}>{room}</p>
-			) : null}
 		</div>
 	)
 }

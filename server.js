@@ -18,40 +18,51 @@ app.use(express.json())
 app.use(cors())
 
 const rooms = {}
+
+const findRoom = socket => {
+	let r = ''
+	for (const room in rooms) {
+		rooms[room].forEach(e => {
+			if (e === socket.id) {
+				r = room
+			}
+		})
+	}
+
+	return r
+}
 // on socket connection
 io.on('connection', socket => {
 	socket.on('start', ({ room }) => {
 		rooms[room] = [socket.id]
-
-		console.log(`after start rooms = ${rooms}`)
 	})
 
 	socket.on('join', ({ room }) => {
-		if (rooms.hasOwnProperty(room)) {
+		if (rooms.hasOwnProperty(room) && rooms[room].length < 2) {
+			io.to(rooms[room][0]).emit('otherPlayerOnline')
+
+			io.to(socket.id).emit('otherPlayerOnline')
+
 			rooms[room].push(socket.id)
 		}
+	})
 
-		console.log(`after join rooms = ${rooms}`)
+	socket.on('move', ({ id }) => {
+		let r = findRoom(socket)
 	})
 
 	socket.on('disconnect', () => {
-		let r = ''
-
-		for (const room in rooms) {
-			rooms[room].forEach(e => {
-				if (e === socket.id) {
-					r = room
-				}
-			})
-		}
+		let r = findRoom(socket)
 
 		if (r !== '') {
 			if (rooms[r].length === 1) {
 				delete rooms[r]
 			} else if (rooms[r].length === 2) {
-				const temp = rooms[r].filter(e => e === socket.id)
+				const temp = rooms[r].filter(e => e !== socket.id)
 
-				rooms[r] = temp
+				io.to(temp).emit('otherPlayerOffline')
+
+				rooms[r] = [temp]
 			}
 		}
 	})
