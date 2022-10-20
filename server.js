@@ -58,17 +58,31 @@ io.on('connection', socket => {
 	socket.on('win', () => {
 		let r = findRoom(socket)
 
-		rooms[r].forEach(player => {
-			io.to(player).emit('win')
-		})
+		if (r !== '') {
+			rooms[r].forEach(player => {
+				io.to(player).emit('win')
+			})
+		}
 	})
 
 	socket.on('draw', () => {
 		let r = findRoom(socket)
 
-		rooms[r].forEach(player => {
-			io.to(player).emit('draw')
-		})
+		if (r !== '') {
+			rooms[r].forEach(player => {
+				io.to(player).emit('draw')
+			})
+		}
+	})
+
+	socket.on('restart', () => {
+		let r = findRoom(socket)
+
+		if (r !== '') {
+			rooms[r].forEach(player => {
+				io.to(player).emit('restart')
+			})
+		}
 	})
 
 	socket.on('disconnect', () => {

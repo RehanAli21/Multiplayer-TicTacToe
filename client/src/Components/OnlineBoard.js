@@ -3,7 +3,7 @@ import { io } from 'socket.io-client'
 import { v4 as uuidv4 } from 'uuid'
 import ResultDialog from './ResultDialog'
 
-const matrix = [
+let matrix = [
 	['', '', ''],
 	['', '', ''],
 	['', '', ''],
@@ -27,6 +27,8 @@ const OnlineBoard = ({ setComp, roomRef }) => {
 		socket.on('win', () => setCond('win'))
 
 		socket.on('draw', () => setCond('draw'))
+
+		socket.on('restart', () => resetComp())
 
 		socket.on('move', ({ id }) => {
 			const ele = document.getElementById(id)
@@ -63,18 +65,18 @@ const OnlineBoard = ({ setComp, roomRef }) => {
 
 	useEffect(() => {
 		if (restart) {
-			resetComp()
-		}
+			socket.emit('restart')
 
-		return resetComp()
+			return resetComp()
+		}
 	}, [restart])
 
 	const resetComp = () => {
-		for (let i = 0; i < 3; i++) {
-			for (let j = 0; j < 3; j++) {
-				matrix[i][j] = ''
-			}
-		}
+		matrix = [
+			['', '', ''],
+			['', '', ''],
+			['', '', ''],
+		]
 
 		for (let i = 1; i < 10; i++) {
 			const ele = document.getElementById(`part${i}`)
