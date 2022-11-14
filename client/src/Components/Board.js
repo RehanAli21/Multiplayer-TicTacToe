@@ -107,7 +107,7 @@ const Board = ({ setComp }) => {
 	return (
 		<div>
 			{cond === 'win' || cond === 'lose' || cond === 'draw' ? (
-				<ResultDialog turn={turn} cond={cond} setComp={setComp} setRestart={setRestart} />
+				<ResultDialog turn={turn} cond={cond} setComp={setComp} exit={''} setRestart={setRestart} />
 			) : null}
 			<div className='boarddiv1'>
 				<h2>{turn.toUpperCase()}'S TURN</h2>

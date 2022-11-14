@@ -17,6 +17,12 @@ const io = socketio(server, {
 app.use(express.json())
 app.use(cors())
 
+app.use(express.static('client/build'))
+
+app.get('*', (req, res) => {
+	res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
+})
+
 const rooms = {}
 
 const findRoom = socket => {
@@ -83,6 +89,26 @@ io.on('connection', socket => {
 				io.to(player).emit('restart')
 			})
 		}
+	})
+
+	socket.on('exit', () => {
+		let r = findRoom(socket)
+
+		if (r !== '') {
+			if (rooms[r].length === 1) {
+				delete rooms[r]
+			} else if (rooms[r].length === 2) {
+				const temp = rooms[r].filter(e => e !== socket.id)
+
+				io.to(temp).emit('exit')
+
+				rooms[r] = [temp]
+			}
+		}
+	})
+
+	socket.on('destroyRoom', ({ room }) => {
+		if (rooms.hasOwnProperty(room)) delete rooms[room]
 	})
 
 	socket.on('disconnect', () => {

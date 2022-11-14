@@ -9,7 +9,7 @@ let matrix = [
 	['', '', ''],
 ]
 
-let socket = io('http://localhost:5000')
+let socket = io('')
 const room = uuidv4()
 
 let turn = 'player1'
@@ -29,6 +29,11 @@ const OnlineBoard = ({ setComp, roomRef }) => {
 		socket.on('draw', () => setCond('draw'))
 
 		socket.on('restart', () => resetComp())
+
+		socket.on('exit', () => {
+			socket.emit('destroyRoom', { room: room })
+			setComp('')
+		})
 
 		socket.on('move', ({ id }) => {
 			const ele = document.getElementById(id)
@@ -157,10 +162,14 @@ const OnlineBoard = ({ setComp, roomRef }) => {
 		}
 	}
 
+	const exit = () => {
+		socket.emit('exit', { room: room })
+	}
+
 	return (
 		<div style={{ textAlign: 'center' }}>
 			{cond === 'win' || cond === 'lose' || cond === 'draw' ? (
-				<ResultDialog turn={turn} cond={cond} setComp={setComp} setRestart={setRestart} />
+				<ResultDialog turn={turn} cond={cond} setComp={setComp} exit={exit} setRestart={setRestart} />
 			) : null}
 			<div className='boarddiv1'>
 				<h2 id='playernametext'>Player 1's Turn</h2>
